@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3><i class="bi bi-table me-2"></i>Resultados por Lote</h3>
+                </div>
+
+                <div class="card-body">
+                    <!-- Resumen del modelo -->
+                    <div class="alert alert-info">
+                        <strong>Modelo utilizado:</strong> {{ model_name }}
+                        {% if metrics %}
+                        | <strong>Exactitud:</strong> {{ "%.2f"|format(metrics.accuracy * 100) }}%
+                        {% endif %}
+                    </div>
+
+                    <!-- Sección de coincidencias -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5><i class="bi bi-clipboard2-data me-2"></i>Comparación con Dataset Original</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-secondary">
+                                <strong>Registros coincidentes:</strong> {{ matched_records|length }} de {{ results|length }}
+                                | <strong>Precisión:</strong> {{ "%.2f"|format(accuracy * 100) }}%
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Fila en Subida</th>
+                                            <th>Fila en Dataset</th>
+                                            <th>Predicción</th>
+                                            <th>Valor Real</th>
+                                            <th>Resultado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for match in matched_records %}
+                                        {% set result = results[match.uploaded_row - 1] %}
+                                        <tr class="{% if result.is_correct %}table-success{% else %}table-danger{% endif %}">
+                                            <td>{{ match.uploaded_row }}</td>
+                                            <td>{{ match.original_row }}</td>
+                                            <td>
+                                                {% if result.prediction == 1 %}
+                                                <span class="badge bg-danger">FGR</span>
+                                                {% else %}
+                                                <span class="badge bg-success">Normal</span>
+                                                {% endif %}
+                                                ({{ "%.2f"|format(result.probability) }}%)
+                                            </td>
+                                            <td>
+                                                {% if result.actual == 1 %}
+                                                <span class="badge bg-danger">FGR</span>
+                                                {% else %}
+                                                <span class="badge bg-success">Normal</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if result.is_correct %}
+                                                <i class="bi bi-check-circle-fill text-success"></i> Correcto
+                                                {% else %}
+                                                <i class="bi bi-x-circle-fill text-danger"></i> Incorrecto
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gráfica de matriz de confusión -->
+                    <div class="col-md-6 mb-4">
+                        <canvas id="confusionMatrixChart"></canvas>
+                    </div>
+                    
+                    <!-- Botón de nueva predicción -->
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('batch_prediction') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-arrow-repeat me-2"></i>Nueva predicción
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

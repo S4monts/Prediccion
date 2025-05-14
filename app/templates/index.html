@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center mb-4">
+        <div class="col-auto text-center">
+            <h1 class="display-4 fw-bold text-dark">🧠 Sistema de Predicciones</h1>
+            <p class="lead text-secondary">Elige cómo prefieres hacer tus estimaciones</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Opción Individual -->
+        <div class="col-md-6">
+            <div class="card h-100 border-primary shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0"><i class="bi bi-person-fill me-2"></i>Predicción Individual</h2>
+                </div>
+                <div class="card-body">
+                    <p>Introduce manualmente cada característica y obtén <strong>de inmediato</strong> el resultado.</p>
+                    <ul>
+                        <li>Formulario rápido</li>
+                        <li>Validación en tiempo real</li>
+                        <li>Ideal para un solo registro</li>
+                    </ul>
+                </div>
+                <div class="card-footer text-center bg-transparent">
+                    <a href="{{ url_for('individual_prediction') }}" class="btn btn-primary btn-lg px-4">Ir a Predicción
+                        Individual</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Opción por Lote -->
+        <div class="col-md-6">
+            <div class="card h-100 border-success shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h4 mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>Predicción por Lote</h2>
+                </div>
+                <div class="card-body">
+                    <p>Sube de una vez tu <strong>archivo Excel</strong> con hasta 1.000 registros y procesa en bloque.
+                    </p>
+                    <ul>
+                        <li>Soporta .xlsx / .csv</li>
+                        <li>Hasta 30 columnas de características</li>
+                        <li>Descarga resultados automáticos</li>
+                    </ul>
+                </div>
+                <div class="card-footer text-center bg-transparent">
+                    <a href="{{ url_for('batch_prediction') }}" class="btn btn-success btn-lg px-4">Ir a Predicción por
+                        Lote</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="alert alert-info">
+                <h5 class="alert-heading">¿Cuál elegir?</h5>
+                <p class="mb-0">
+                    <strong>Individual:</strong> mejor cuando necesitas un cálculo rápido sobre un solo set de
+                    datos.<br>
+                    <strong>Por Lote:</strong> recomendado si cuentas con varios registros y quieres procesarlos todos
+                    juntos.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

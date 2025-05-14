@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="my-2"><i class="bi bi-upload me-2"></i>Predicción por Lote</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('batch_prediction') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-4">
+                            <label class="form-label fs-5">
+                                <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+                                Seleccione su archivo
+                            </label>
+                            {{ form.file(class="form-control form-control-lg") }}
+                            <div class="form-text">
+                                Formatos aceptados: .xlsx, .xls, .csv (30 columnas requeridas)
+                            </div>
+                            {% if form.file.errors %}
+                            <div class="alert alert-danger mt-2">
+                                {% for error in form.file.errors %}
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fs-5">
+                                <i class="bi bi-cpu me-2"></i>
+                                Seleccione el modelo
+                            </label>
+                            {{ form.model_choice(class="form-select form-select-lg") }}
+                        </div>
+
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-success btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mt-4 shadow">
+                <div class="card-header bg-info text-white">
+                    <h4 class="my-2"><i class="bi bi-info-circle me-2"></i>Instrucciones</h4>
+                </div>
+                <div class="card-body">
+                    <ol class="list-group list-group-numbered">
+                        <li class="list-group-item">Prepare su archivo con exactamente 30 columnas</li>
+                        <li class="list-group-item">Asegúrese que todos los valores sean numéricos</li>
+                        <li class="list-group-item">Las columnas deben llamarse C1, C2, ..., C30</li>
+                        <li class="list-group-item">No incluya la columna C31 (variable objetivo)</li>
+                        <li class="list-group-item">La primera fila debe contener los nombres de las columnas</li>
+                    </ol>
+            <!-- Agregar esta sección al final, antes del cierre del bloque -->
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <!-- Grupo de botones -->
+                    <div class="d-flex justify-content-center gap-3">
+
+                        <!-- Botón de reentrenamiento -->
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-warning btn-lg dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear-wide-connected me-2"></i> Reentrenar Modelo
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                        <input type="hidden" name="model_type" value="logistic">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-graph-up me-2"></i> Regresión Logística
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                        <input type="hidden" name="model_type" value="neural">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-cpu me-2"></i> Red Neuronal
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                        <input type="hidden" name="model_type" value="svm">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-bounding-box me-2"></i> Máquina de Soporte Vectorial
+                                        </button>
+                                    </form>
+                                </li>
+                                <li>
+                                    <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                        <input type="hidden" name="model_type" value="fuzzy">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-cloud-fog me-2"></i> Modelo Difuso
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

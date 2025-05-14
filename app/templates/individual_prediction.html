@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="my-2"><i class="bi bi-clipboard2-pulse me-2"></i>Predicción de FGR</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('individual_prediction') }}">
+                        {{ form.hidden_tag() }}
+
+                        <!-- Función auxiliar para mostrar errores -->
+                        {% macro render_field(field, hint='') %}
+                        <div class="mb-3">
+                            {{ field.label(class="form-label") }}
+                            {{ field(class="form-control" + (' is-invalid' if field.errors else '')) }}
+                            {% if field.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in field.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if hint %}
+                            <small class="text-muted">{{ hint }}</small>
+                            {% endif %}
+                        </div>
+                        {% endmacro %}
+
+                        <!-- 1. Información Básica -->
+                        <h4 class="border-bottom pb-2">Información Básica</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ render_field(form.age, 'Entre 15 y 50 años') }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_field(form.bmi, 'Entre 15 y 50 kg/m²') }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_field(form.gestational_age, 'Entre 20 y 42 semanas') }}
+                            </div>
+                        </div>
+
+                        <!-- 2. Historial Obstétrico -->
+                        <h4 class="border-bottom pb-2 mt-4">Historial Obstétrico</h4>
+                        <div class="row">
+                            <div class="col-md-4">
+                                {{ render_field(form.gravidity, '0 – 20 embarazos') }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_field(form.parity, '0 – 15 partos') }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_field(form.initial_symptoms) }}
+                            </div>
+                        </div>
+
+                        <!-- 3. Fechas de aparición de síntomas -->
+                        <h4 class="border-bottom pb-2 mt-4">Síntomas: Fechas y Duración</h4>
+                        <div class="row gx-3 gy-3">
+                            {% for field, hint in [
+                            (form.ios_onset_age, '0 – 50'),
+                            (form.ios_to_delivery, '0 – 300'),
+                            (form.htn_onset_age, '0 – 50'),
+                            (form.htn_to_delivery, '0 – 300')
+                            ] %}
+                            <div class="col-md-3">
+                                {{ render_field(field, 'Entre ' + hint) }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="row gx-3 gy-3">
+                            {% for field, hint in [
+                            (form.edema_onset_age, '0 – 50'),
+                            (form.edema_to_delivery, '0 – 300'),
+                            (form.proteinuria_onset_age, '0 – 50'),
+                            (form.proteinuria_to_delivery, '0 – 300')
+                            ] %}
+                            <div class="col-md-3">
+                                {{ render_field(field, 'Entre ' + hint) }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- 4. Tratamientos y Antecedentes -->
+                        <h4 class="border-bottom pb-2 mt-4">Tratamientos y Antecedentes</h4>
+                        <div class="row">
+                            <div class="col-md-4 form-check form-switch mb-3">
+                                {{ form.expectant_treatment(class="form-check-input") }}
+                                {{ form.expectant_treatment.label(class="form-check-label") }}
+                            </div>
+                            <div class="col-md-4 form-check form-switch mb-3">
+                                {{ form.antihypert_before(class="form-check-input") }}
+                                {{ form.antihypert_before.label(class="form-check-label") }}
+                            </div>
+                            <div class="col-md-4">
+                                {{ render_field(form.past_history) }}
+                            </div>
+                        </div>
+
+                        <!-- 5. Signos Vitales -->
+                        <h4 class="border-bottom pb-2 mt-4">Presión Arterial</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ render_field(form.max_systolic, 'Entre 70 y 250 mmHg') }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ render_field(form.max_diastolic, 'Entre 40 y 150 mmHg') }}
+                            </div>
+                        </div>
+
+                        <!-- 6. Pruebas de Laboratorio -->
+                        <h4 class="border-bottom pb-2 mt-4">Pruebas de Laboratorio</h4>
+                        <div class="row">
+                            {% for field, hint in [
+                            (form.bnp, '0 – 5000 pg/mL'),
+                            (form.creatinine, '0.1 – 10 mg/dL'),
+                            (form.uric_acid, '0 – 20 mg/dL'),
+                            (form.proteinuria, '0 – 10000 mg/24h'),
+                            (form.total_protein, '0 – 20 mg/dL'),
+                            (form.albumin, '0 – 10 g/dL'),
+                            (form.alt, '0 – 300 U/L'),
+                            (form.ast, '0 – 300 U/L'),
+                            (form.platelet, '10 – 500 x10³/μL')
+                            ] %}
+                            <div class="col-md-4">
+                                {{ render_field(field, 'Entre ' + hint) }}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- 7. Datos de Parto -->
+                        <h4 class="border-bottom pb-2 mt-4">Datos de Parto</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ render_field(form.reasons_delivery) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ render_field(form.mode_of_delivery) }}
+                            </div>
+                        </div>
+
+                        <!-- 8. Peso Fetal (opcional) -->
+                        <h4 class="border-bottom pb-2 mt-4">Peso Fetal (opcional)</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {{ render_field(form.fetal_weight) }}
+                            </div>
+                        </div>
+
+                        <!-- 9. Modelo y Envío -->
+                        <h4 class="border-bottom pb-2 mt-4">Configuración del Modelo</h4>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                {{ render_field(form.model_choice) }}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                {{ form.submit(class="btn btn-primary w-100 py-3") }}
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sección de Reentrenamiento -->
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-warning btn-lg dropdown-toggle" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="bi bi-gear-wide-connected me-2"></i> Reentrenar Modelo
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                    <input type="hidden" name="model_type" value="logistic">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-graph-up me-2"></i> Regresión Logística
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                    <input type="hidden" name="model_type" value="neural">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-cpu me-2"></i> Red Neuronal
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                    <input type="hidden" name="model_type" value="svm">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-bounding-box me-2"></i> Máquina de Vectores
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form action="{{ url_for('retrain') }}" method="post" class="d-inline">
+                                    <input type="hidden" name="model_type" value="fuzzy">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-cloud-fog me-2"></i> Modelo Difuso
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg ms-3">
+                        <i class="bi bi-arrow-left me-2"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Notificación de Reentrenamiento -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-{{ category }} text-white">
+            <strong class="me-auto">
+                {% if category == 'success' %}
+                <i class="bi bi-check-circle me-2"></i> Éxito
+                {% else %}
+                <i class="bi bi-exclamation-triangle me-2"></i> Error
+                {% endif %}
+            </strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<script>
+    // Cierra automáticamente los toasts después de 5 segundos
+    document.addEventListener('DOMContentLoaded', function () {
+        const toasts = document.querySelectorAll('.toast');
+        toasts.forEach(toast => {
+            setTimeout(() => {
+                const bsToast = new bootstrap.Toast(toast);
+                bsToast.hide();
+            }, 5000);
+        });
+    });
+</script>
+{% endblock %}
